@@ -81,7 +81,10 @@ export default async function ProtectedPage() {
                   <div className="flex-1">
                     <div className="text-white font-semibold">{track.name}</div>
                     <div className="text-gray-400">
-                      by {track.artists.map((artist) => artist.name).join(", ")}
+                      by{" "}
+                      {track.artists
+                        .map((artist: { name: any }) => artist.name)
+                        .join(", ")}
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
                       {/* Genres: {track.genres.slice(0, 3).join(", ")} */}
