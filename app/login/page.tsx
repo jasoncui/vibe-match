@@ -37,7 +37,10 @@ export default function Login({
       provider: "spotify",
       options: {
         scopes: "user-top-read",
-        redirectTo: `http://localhost:3000/auth/callback`,
+        redirectTo:
+          process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/auth/callback`
+            : `https://vibe-match.vercel.app/auth/callback`,
       },
     });
 
