@@ -26,10 +26,14 @@ export default async function Index() {
           {isSupabaseConnected && <AuthButton />}
         </div>
       </nav>
-      <div>
-        Vibe match connects to your Spotify and sees how your music vibes match
-        up with your friends.
-      </div>
+      {isSupabaseConnected ? (
+        <div>You're logged in.</div>
+      ) : (
+        <div>
+          Vibe match connects to your Spotify and sees how your music vibes
+          match up with your friends.
+        </div>
+      )}
     </div>
   );
 }
