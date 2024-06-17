@@ -28,7 +28,7 @@ export default async function Index() {
     });
 
     if (response.ok) {
-      const data = response.json();
+      const data = await response.json();
       console.log(data);
       return data;
     } else {
@@ -49,19 +49,19 @@ export default async function Index() {
         </div>
       </nav>
       {user ? (
-        <div className="animate-in flex-1 flex flex-col gap-20 opacity-0 max-w-4xl px-3">
+        <div className="animate-in flex-1 flex flex-col gap-20 opacity-0 max-w-4xl px-3 pb-20">
           <main className="flex-1 flex flex-col gap-6">
-            <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-              <h3 className="font-bold text-2xl mb-6 text-white">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h3 className="font-bold text-2xl mb-6 text-black">
                 Your Top Tracks
               </h3>
               <ul className="space-y-4">
                 {topTracks.items.map((track: any, index: number) => (
                   <li
                     key={track.id}
-                    className="flex items-center space-x-4 bg-gray-800 p-4 rounded-lg"
+                    className="flex items-center space-x-4 bg-gray-100 p-4 rounded-lg"
                   >
-                    <span className="text-lg text-gray-400 font-bold">
+                    <span className="text-lg text-gray-600 font-bold">
                       {index + 1}
                     </span>
                     <img
@@ -70,17 +70,20 @@ export default async function Index() {
                       className="w-16 h-16 rounded-lg"
                     />
                     <div className="flex-1">
-                      <div className="text-white font-semibold">
+                      <div className="text-black font-semibold">
                         {track.name}
                       </div>
-                      <div className="text-gray-400">
+                      <div className="text-gray-600">
                         by{" "}
                         {track.artists
                           .map((artist: { name: any }) => artist.name)
                           .join(", ")}
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
-                        {/* Genres: {track.genres.slice(0, 3).join(", ")} */}
+                        Album: {track.album.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Release Date: {track.album.release_date}
                       </div>
                     </div>
                   </li>
