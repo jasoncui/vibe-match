@@ -57,8 +57,10 @@ export default async function Index() {
 
   // Calculate the basic score
   const basicScore =
-    topTracks.items.reduce((acc, track) => acc + track.popularity, 0) /
-    topTracks.items.length;
+    topTracks.items.reduce(
+      (acc: any, track: { popularity: any }) => acc + track.popularity,
+      0
+    ) / topTracks.items.length;
 
   return (
     <div className="container mx-auto p-6 max-w-5xl pb-20">
