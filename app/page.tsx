@@ -1,6 +1,14 @@
 import AuthButton from "../components/AuthButton";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import {
+  Key,
+  ReactElement,
+  JSXElementConstructor,
+  ReactNode,
+  ReactPortal,
+  PromiseLikeOfReactNode,
+} from "react";
 
 export default async function Index() {
   const supabase = createClient();
@@ -81,33 +89,73 @@ export default async function Index() {
       <div className="mb-8">
         <h3 className="font-bold text-2xl mb-4">Your Top Tracks</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {topTracks.items.map((track, index) => (
-            <div
-              key={track.id}
-              className="bg-white p-4 rounded-lg shadow-md flex items-center"
-            >
-              <span className="text-lg text-gray-600 font-bold mr-4">
-                {index + 1}
-              </span>
-              <img
-                src={track.album.images[0].url}
-                alt={track.name}
-                className="w-16 h-16 rounded-lg mr-4"
-              />
-              <div>
-                <div className="text-black font-semibold">{track.name}</div>
-                <div className="text-gray-600">
-                  by {track.artists.map((artist) => artist.name).join(", ")}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Album: {track.album.name}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Release Date: {track.album.release_date}
+          {topTracks.items.map(
+            (
+              track: {
+                id: Key | null | undefined;
+                album: {
+                  images: { url: string | undefined }[];
+                  name:
+                    | string
+                    | number
+                    | boolean
+                    | ReactElement<any, string | JSXElementConstructor<any>>
+                    | Iterable<ReactNode>
+                    | ReactPortal
+                    | PromiseLikeOfReactNode
+                    | null
+                    | undefined;
+                  release_date:
+                    | string
+                    | number
+                    | boolean
+                    | ReactElement<any, string | JSXElementConstructor<any>>
+                    | Iterable<ReactNode>
+                    | ReactPortal
+                    | PromiseLikeOfReactNode
+                    | null
+                    | undefined;
+                };
+                name:
+                  | string
+                  | number
+                  | boolean
+                  | ReactElement<any, string | JSXElementConstructor<any>>
+                  | Iterable<ReactNode>
+                  | PromiseLikeOfReactNode
+                  | null
+                  | undefined;
+                artists: any[];
+              },
+              index: number
+            ) => (
+              <div
+                key={track.id}
+                className="bg-white p-4 rounded-lg shadow-md flex items-center"
+              >
+                <span className="text-lg text-gray-600 font-bold mr-4">
+                  {index + 1}
+                </span>
+                <img
+                  src={track.album.images[0].url}
+                  alt={track.name}
+                  className="w-16 h-16 rounded-lg mr-4"
+                />
+                <div>
+                  <div className="text-black font-semibold">{track.name}</div>
+                  <div className="text-gray-600">
+                    by {track.artists.map((artist) => artist.name).join(", ")}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    Album: {track.album.name}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Release Date: {track.album.release_date}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
 
