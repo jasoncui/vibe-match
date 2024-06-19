@@ -17,12 +17,17 @@ export default async function Index() {
 
   const token = session.session.provider_token;
 
+  console.log("user: ", user);
+
   const fetchTopTracks = async (token: string) => {
-    const response = await fetch("https://api.spotify.com/v1/me/top/tracks", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      "https://api.spotify.com/v1/me/top/tracks?time_range=medium_term",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (response.ok) {
       const data = await response.json();
@@ -34,11 +39,14 @@ export default async function Index() {
   };
 
   const fetchTopArtists = async (token: string) => {
-    const response = await fetch("https://api.spotify.com/v1/me/top/artists", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      "https://api.spotify.com/v1/me/top/artists?time_range=long_term",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (response.ok) {
       const data = await response.json();
