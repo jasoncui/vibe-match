@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import SpotifyButton from "@/components/SpotifyButton";
+import { initializeOrUpdateSpotifyData } from "@/lib/spotify";
 
 export default function Login({
   searchParams,
