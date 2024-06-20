@@ -17,8 +17,6 @@ export default async function Index() {
 
   const token = session.session.provider_token;
 
-  console.log("user: ", user);
-
   const fetchTopTracks = async (token: string) => {
     const response = await fetch(
       "https://api.spotify.com/v1/me/top/tracks?time_range=medium_term",
