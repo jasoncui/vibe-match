@@ -31,7 +31,7 @@ export async function initializeOrUpdateSpotifyData(
       try {
         topTracks = await fetchTopTracks(token);
         topArtists = await fetchTopArtists(token);
-      } catch (fetchError) {
+      } catch (fetchError: any) {
         console.error("Error fetching Spotify data:", fetchError);
         throw new Error(`Failed to fetch Spotify data: ${fetchError.message}`);
       }
@@ -42,7 +42,7 @@ export async function initializeOrUpdateSpotifyData(
           topTracks.items,
           topArtists.items
         );
-      } catch (storeError) {
+      } catch (storeError: any) {
         console.error("Error storing Spotify data:", storeError);
         throw new Error(`Failed to store Spotify data: ${storeError.message}`);
       }
@@ -86,7 +86,7 @@ async function fetchTopTracks(token: string) {
     }
 
     return await response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching top tracks:", error);
     throw new Error(`Failed to fetch top tracks: ${error.message}`);
   }
@@ -108,7 +108,7 @@ async function fetchTopArtists(token: string) {
     }
 
     return await response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching top artists:", error);
     throw new Error(`Failed to fetch top artists: ${error.message}`);
   }
