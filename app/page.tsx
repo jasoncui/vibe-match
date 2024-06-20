@@ -1,6 +1,7 @@
 import AuthButton from "../components/AuthButton";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function Index() {
   const supabase = createClient();
@@ -48,6 +49,14 @@ export default async function Index() {
     <div className="container mx-auto p-6 max-w-5xl pb-20">
       <header className="flex justify-between items-center py-4 border-b border-gray-300">
         <h1 className="text-3xl font-bold">Vibe Match</h1>
+        <Link
+          href={`/user/${user.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition duration-300"
+        >
+          View Public Profile
+        </Link>
         <AuthButton />
       </header>
 

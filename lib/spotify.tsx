@@ -9,13 +9,14 @@ export async function initializeOrUpdateSpotifyData(
   const supabase = createClient();
 
   try {
+    // Check if user data exists and when it was last updated
     const { data: userData, error: userError } = await supabase
       .from("user_spotify_data")
-      .select("last_updated")
+      .select("last_updated, basic_score")
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (userError) {
+    if (userError && userError.code !== "PGRST116") {
       console.error("Error fetching user data:", userError);
       throw new Error(`Failed to fetch user data: ${userError.message}`);
     }
@@ -27,36 +28,20 @@ export async function initializeOrUpdateSpotifyData(
     if (shouldUpdate) {
       console.log("Fetching new Spotify data for user:", userId);
 
-      let topTracks, topArtists;
-      try {
-        topTracks = await fetchTopTracks(token);
-        topArtists = await fetchTopArtists(token);
-      } catch (fetchError: any) {
-        console.error("Error fetching Spotify data:", fetchError);
-        throw new Error(`Failed to fetch Spotify data: ${fetchError.message}`);
-      }
+      // Fetch new data from Spotify
+      const topTracks = await fetchTopTracks(token);
+      const topArtists = await fetchTopArtists(token);
 
-      try {
-        await storeSpotifyDataInSupabase(
-          userId,
-          topTracks.items,
-          topArtists.items
-        );
-      } catch (storeError: any) {
-        console.error("Error storing Spotify data:", storeError);
-        throw new Error(`Failed to store Spotify data: ${storeError.message}`);
-      }
+      // Calculate basic score
+      const basicScore = calculateBasicScore(topTracks.items);
 
-      const { error: updateError } = await supabase
-        .from("user_spotify_data")
-        .upsert({ user_id: userId, last_updated: new Date().toISOString() });
-
-      if (updateError) {
-        console.error("Error updating last_updated timestamp:", updateError);
-        throw new Error(
-          `Failed to update last_updated timestamp: ${updateError.message}`
-        );
-      }
+      // Store the fetched data and basic score in Supabase
+      await storeSpotifyDataInSupabase(
+        userId,
+        topTracks.items,
+        topArtists.items,
+        basicScore
+      );
 
       console.log("Spotify data updated for user:", userId);
       return true;
@@ -86,7 +71,7 @@ async function fetchTopTracks(token: string) {
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching top tracks:", error);
     throw new Error(`Failed to fetch top tracks: ${error.message}`);
   }
@@ -108,20 +93,51 @@ async function fetchTopArtists(token: string) {
     }
 
     return await response.json();
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching top artists:", error);
     throw new Error(`Failed to fetch top artists: ${error.message}`);
   }
 }
 
+function calculateBasicScore(tracks: any[]): number | null {
+  if (!tracks || tracks.length === 0) {
+    console.log("No tracks available for basic score calculation");
+    return null;
+  }
+
+  const validTracks = tracks.filter(
+    (track) => typeof track.popularity === "number"
+  );
+
+  if (validTracks.length === 0) {
+    console.log("No tracks with valid popularity scores");
+    return null;
+  }
+
+  const totalPopularity = validTracks.reduce(
+    (sum, track) => sum + track.popularity,
+    0
+  );
+  const averagePopularity = totalPopularity / validTracks.length;
+
+  console.log(
+    `Calculated basic score: ${averagePopularity.toFixed(2)} from ${
+      validTracks.length
+    } tracks`
+  );
+  return averagePopularity;
+}
+
 async function storeSpotifyDataInSupabase(
   userId: string,
   tracksData: any[],
-  artistsData: any[]
+  artistsData: any[],
+  basicScore: number | null
 ) {
   const supabase = createClient();
 
   try {
+    // Store tracks data
     const { error: tracksError } = await supabase
       .from("user_top_tracks")
       .upsert(
@@ -143,6 +159,7 @@ async function storeSpotifyDataInSupabase(
       throw new Error(`Failed to insert tracks data: ${tracksError.message}`);
     }
 
+    // Store artists data
     const { error: artistsError } = await supabase
       .from("user_top_artists")
       .upsert(
@@ -161,8 +178,27 @@ async function storeSpotifyDataInSupabase(
       console.error("Error inserting artists data:", artistsError);
       throw new Error(`Failed to insert artists data: ${artistsError.message}`);
     }
+
+    // Update basic score in user_spotify_data
+    console.log(`Attempting to store basic score: ${basicScore}`);
+    const { error: scoreError } = await supabase
+      .from("user_spotify_data")
+      .upsert({
+        user_id: userId,
+        basic_score: basicScore,
+        last_updated: new Date().toISOString(),
+      });
+
+    if (scoreError) {
+      console.error("Error updating basic score:", scoreError);
+      throw new Error(`Failed to update basic score: ${scoreError.message}`);
+    }
+
+    console.log(`Stored basic score for user ${userId}: ${basicScore}`);
   } catch (error) {
     console.error("Error in storeSpotifyDataInSupabase:", error);
     throw error;
   }
 }
+
+export { fetchTopTracks, fetchTopArtists, calculateBasicScore };
