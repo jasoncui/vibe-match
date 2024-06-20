@@ -71,7 +71,7 @@ async function fetchTopTracks(token: string) {
     }
 
     return await response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching top tracks:", error);
     throw new Error(`Failed to fetch top tracks: ${error.message}`);
   }
@@ -93,7 +93,7 @@ async function fetchTopArtists(token: string) {
     }
 
     return await response.json();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching top artists:", error);
     throw new Error(`Failed to fetch top artists: ${error.message}`);
   }
