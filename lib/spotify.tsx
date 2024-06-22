@@ -137,11 +137,11 @@ async function storeSpotifyDataInSupabase(
   const supabase = createClient();
 
   try {
-    // Store tracks data
+    // Store tracks data with ranking
     const { error: tracksError } = await supabase
       .from("user_top_tracks")
       .upsert(
-        tracksData.map((track) => ({
+        tracksData.map((track, index) => ({
           user_id: userId,
           track_id: track.id,
           name: track.name,
@@ -150,6 +150,7 @@ async function storeSpotifyDataInSupabase(
           release_date: track.album.release_date,
           popularity: track.popularity,
           image_url: track.album.images[0]?.url,
+          rank: index + 1, // Add ranking based on the order
         })),
         { onConflict: "user_id,track_id" }
       );
@@ -159,17 +160,18 @@ async function storeSpotifyDataInSupabase(
       throw new Error(`Failed to insert tracks data: ${tracksError.message}`);
     }
 
-    // Store artists data
+    // Store artists data with ranking
     const { error: artistsError } = await supabase
       .from("user_top_artists")
       .upsert(
-        artistsData.map((artist) => ({
+        artistsData.map((artist, index) => ({
           user_id: userId,
           artist_id: artist.id,
           name: artist.name,
           genres: artist.genres,
           followers: artist.followers.total,
           image_url: artist.images[0]?.url,
+          rank: index + 1, // Add ranking based on the order
         })),
         { onConflict: "user_id,artist_id" }
       );

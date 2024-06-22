@@ -19,7 +19,7 @@ export default async function Index() {
     .from("user_top_tracks")
     .select("*")
     .eq("user_id", user.id)
-    .order("popularity", { ascending: false })
+    .order("rank", { ascending: true })
     .limit(50);
 
   if (tracksError) {
@@ -31,7 +31,7 @@ export default async function Index() {
     .from("user_top_artists")
     .select("*")
     .eq("user_id", user.id)
-    .order("followers", { ascending: false })
+    .order("rank", { ascending: true })
     .limit(50);
 
   if (artistsError) {

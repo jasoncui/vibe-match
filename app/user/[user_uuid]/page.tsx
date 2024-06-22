@@ -43,7 +43,7 @@ export default async function UserProfile({ params }: PageProps) {
     .from("user_top_tracks")
     .select("*")
     .eq("user_id", user_uuid)
-    .order("popularity", { ascending: false })
+    .order("rank", { ascending: true })
     .limit(10);
 
   if (tracksError) {
@@ -55,7 +55,7 @@ export default async function UserProfile({ params }: PageProps) {
     .from("user_top_artists")
     .select("*")
     .eq("user_id", user_uuid)
-    .order("followers", { ascending: false })
+    .order("rank", { ascending: true })
     .limit(10);
 
   if (artistsError) {
