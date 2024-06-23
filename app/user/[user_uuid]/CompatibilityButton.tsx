@@ -39,7 +39,8 @@ export default function CompatibilityButton({
       <div className="bg-white rounded-lg shadow-md p-6 mt-8">
         <h2 className="text-2xl font-semibold mb-4">Music Compatibility</h2>
         <p className="text-3xl font-bold text-indigo-600 mb-4">
-          {(compatibilityData.compatibility_score * 100).toFixed(2)}%
+          Compatibility score:{" "}
+          {compatibilityData.compatibility_score.toFixed(2)} out of 10
         </p>
 
         <h3 className="text-xl font-semibold mt-4 mb-2">Shared Top Tracks</h3>
