@@ -13,6 +13,14 @@ export default async function UserProfile({ params }: PageProps) {
   const { user_uuid } = params;
   const supabase = createClient();
 
+  // Fetch the current logged-in user
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+
+  // Check if the profile being viewed belongs to the current user
+  const isOwnProfile = currentUser?.id === user_uuid;
+
   // Fetch profile data
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
@@ -95,12 +103,20 @@ export default async function UserProfile({ params }: PageProps) {
               <p className="text-gray-600">@{profile.username || "username"}</p>
             </div>
             <div className="space-x-2 mt-4 sm:mt-0">
-              <button className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 text-sm sm:text-base">
-                Follow
-              </button>
-              <button className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 text-sm sm:text-base">
-                Message
-              </button>
+              {isOwnProfile ? (
+                <button className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 text-sm sm:text-base">
+                  Edit Profile
+                </button>
+              ) : (
+                <>
+                  <button className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 text-sm sm:text-base">
+                    Follow
+                  </button>
+                  <button className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-100 text-sm sm:text-base">
+                    Message
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
