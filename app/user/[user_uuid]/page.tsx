@@ -2,6 +2,8 @@ import React from "react";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import CompatibilityButton from "./CompatibilityButton";
+import { getCompatibilityData } from "@/lib/compatibility";
 
 interface PageProps {
   params: {
@@ -75,7 +77,16 @@ export default async function UserProfile({ params }: PageProps) {
     return notFound();
   }
 
-  console.log("Profile:", profile);
+  // Fetch initial compatibility data if it exists
+  let initialCompatibilityData = null;
+  if (currentUser && currentUser.id !== user_uuid) {
+    initialCompatibilityData = await getCompatibilityData(
+      currentUser.id,
+      user_uuid
+    );
+  }
+
+  console.log("initialCompatibilityData", initialCompatibilityData);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -137,6 +148,13 @@ export default async function UserProfile({ params }: PageProps) {
                   ? basicScore.toFixed(2)
                   : "N/A"}
               </p>
+              {currentUser && currentUser.id !== user_uuid && (
+                <CompatibilityButton
+                  currentUserId={currentUser.id}
+                  profileUserId={user_uuid}
+                  initialCompatibilityData={initialCompatibilityData}
+                />
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white rounded-lg shadow-md p-6">
