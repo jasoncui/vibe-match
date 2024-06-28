@@ -1,93 +1,89 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Vibe Match
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+## Overview
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+Vibe Match is a web application that allows users to connect through their musical tastes. By leveraging Spotify's API, Vibe Match analyzes users' listening habits and provides compatibility scores between users based on their favorite tracks, artists, and genres.
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- **Spotify Integration**: Users can log in with their Spotify accounts to access their listening data.
+- **Music Profile**: Each user gets a personalized music profile showcasing their top tracks, artists, and genres.
+- **Compatibility Calculation**: Users can calculate their music compatibility with other users, receiving a score and seeing shared musical interests.
+- **User Discovery**: Find and connect with users who have similar music tastes.
 
-## Demo
+## Technology Stack
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- **Frontend**: Next.js with React
+- **Backend**: Next.js API routes (serverless functions)
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth with Spotify OAuth
+- **Styling**: Tailwind CSS
+- **Deployment**: Vercel
 
-## Deploy to Vercel
+## Getting Started
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### Prerequisites
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- Node.js (v14 or later)
+- npm or yarn
+- Spotify Developer account
+- Supabase account
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This%20starter%20configures%20Supabase%20Auth%20to%20use%20cookies%2C%20making%20the%20user's%20session%20available%20throughout%20the%20entire%20Next.js%20app%20-%20Client%20Components%2C%20Server%20Components%2C%20Route%20Handlers%2C%20Server%20Actions%20and%20Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png&integration-ids=oac_VqOgBHqhEoFTPzGkPd7L0iH6)
+### Setup
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
-
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
-
-2. Create a Next.js app using the Supabase Starter template npx command
-
-   ```bash
-   npx create-next-app -e with-supabase
-   ```
-
-3. Use `cd` to change into the app's directory
-
-   ```bash
-   cd name-of-new-app
-   ```
-
-4. Rename `.env.local.example` to `.env.local` and update the following:
+1. Clone the repository:
 
    ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
+   git clone https://github.com/your-username/vibe-match.git
+   cd vibe-match
    ```
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+2. Install dependencies:
 
-5. You can now run the Next.js local development server:
+   ```
+   npm install
+   ```
 
-   ```bash
+3. Set up environment variables:
+   Create a `.env.local` file in the root directory and add the following:
+
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SPOTIFY_CLIENT_ID=your_spotify_client_id
+   SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+   ```
+
+4. Set up Supabase:
+
+   - Create necessary tables: `profiles`, `user_top_tracks`, `user_top_artists`, `user_top_genres`, `user_compatibility`
+   - Set up Row Level Security (RLS) policies for each table
+
+5. Run the development server:
+
+   ```
    npm run dev
    ```
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+6. Open `http://localhost:3000` in your browser to see the application.
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+## Project Structure
 
-## Feedback and issues
+- `/app`: Next.js app router pages and API routes
+- `/components`: Reusable React components
+- `/lib`: Utility functions and API helpers
+- `/styles`: Global styles and Tailwind config
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+## Contributing
 
-## More Supabase examples
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- Spotify API for providing access to user music data
+- Supabase for the backend infrastructure
+- Next.js team for the amazing framework
