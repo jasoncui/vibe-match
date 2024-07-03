@@ -25,6 +25,23 @@ function parseReleaseDate(dateString: string): string | null {
   return null;
 }
 
+function deriveTopGenres(
+  artistsData: any[]
+): { genre: string; count: number }[] {
+  const genreCounts: { [key: string]: number } = {};
+
+  artistsData.forEach((artist) => {
+    artist.genres.forEach((genre: string) => {
+      genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+    });
+  });
+
+  return Object.entries(genreCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20) // Get top 20 genres
+    .map(([genre, count], index) => ({ genre, count }));
+}
+
 export async function initializeOrUpdateSpotifyData(
   userId: string,
   token: string
@@ -35,18 +52,22 @@ export async function initializeOrUpdateSpotifyData(
     // Check if user data exists and when it was last updated
     const { data: userData, error: userError } = await supabase
       .from("user_spotify_data")
-      .select("last_updated, basic_score")
+      .select("last_updated")
       .eq("user_id", userId)
-      .maybeSingle();
+      .single();
 
     if (userError && userError.code !== "PGRST116") {
+      // PGRST116 is the error code for "no rows returned"
       console.error("Error fetching user data:", userError);
-      throw new Error(`Failed to fetch user data: ${userError.message}`);
+      throw userError;
     }
 
+    const lastUpdated = userData?.last_updated
+      ? new Date(userData.last_updated)
+      : null;
+    const now = new Date();
     const shouldUpdate =
-      !userData ||
-      Date.now() - new Date(userData.last_updated).getTime() > REFRESH_INTERVAL;
+      !lastUpdated || now.getTime() - lastUpdated.getTime() > REFRESH_INTERVAL;
 
     if (shouldUpdate) {
       console.log("Fetching new Spotify data for user:", userId);
@@ -54,6 +75,9 @@ export async function initializeOrUpdateSpotifyData(
       // Fetch new data from Spotify
       const topTracks = await fetchTopTracks(token);
       const topArtists = await fetchTopArtists(token);
+
+      // Derive top genres from artists data
+      const topGenres = deriveTopGenres(topArtists.items);
 
       // Calculate basic score
       const basicScore = calculateBasicScore(topTracks.items);
@@ -63,6 +87,7 @@ export async function initializeOrUpdateSpotifyData(
         userId,
         topTracks.items,
         topArtists.items,
+        topGenres,
         basicScore
       );
 
@@ -155,12 +180,13 @@ async function storeSpotifyDataInSupabase(
   userId: string,
   tracksData: any[],
   artistsData: any[],
+  genresData: { genre: string; count: number }[],
   basicScore: number | null
 ) {
   const supabase = createClient();
 
   try {
-    // Store tracks data with ranking
+    // Store tracks data
     const { error: tracksError } = await supabase
       .from("user_top_tracks")
       .upsert(
@@ -173,7 +199,7 @@ async function storeSpotifyDataInSupabase(
           release_date: parseReleaseDate(track.album.release_date),
           popularity: track.popularity,
           image_url: track.album.images[0]?.url,
-          rank: index + 1, // Add ranking based on the order
+          rank: index + 1,
         })),
         { onConflict: "user_id,track_id" }
       );
@@ -183,7 +209,7 @@ async function storeSpotifyDataInSupabase(
       throw new Error(`Failed to insert tracks data: ${tracksError.message}`);
     }
 
-    // Store artists data with ranking
+    // Store artists data
     const { error: artistsError } = await supabase
       .from("user_top_artists")
       .upsert(
@@ -194,7 +220,7 @@ async function storeSpotifyDataInSupabase(
           genres: artist.genres,
           followers: artist.followers.total,
           image_url: artist.images[0]?.url,
-          rank: index + 1, // Add ranking based on the order
+          rank: index + 1,
         })),
         { onConflict: "user_id,artist_id" }
       );
@@ -202,6 +228,24 @@ async function storeSpotifyDataInSupabase(
     if (artistsError) {
       console.error("Error inserting artists data:", artistsError);
       throw new Error(`Failed to insert artists data: ${artistsError.message}`);
+    }
+
+    // Store genres data
+    const { error: genresError } = await supabase
+      .from("user_top_genres")
+      .upsert(
+        genresData.map((genre, index) => ({
+          user_id: userId,
+          genre: genre.genre,
+          count: genre.count,
+          rank: index + 1,
+        })),
+        { onConflict: "user_id,genre" }
+      );
+
+    if (genresError) {
+      console.error("Error inserting genres data:", genresError);
+      throw new Error(`Failed to insert genres data: ${genresError.message}`);
     }
 
     // Update basic score in user_spotify_data
