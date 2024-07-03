@@ -2,6 +2,29 @@ import { createClient } from "@/utils/supabase/server";
 
 const REFRESH_INTERVAL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
+function parseReleaseDate(dateString: string): string | null {
+  if (!dateString) return null;
+
+  // If it's just a year
+  if (/^\d{4}$/.test(dateString)) {
+    return `${dateString}-01-01`;
+  }
+
+  // If it's a year and month
+  if (/^\d{4}-\d{2}$/.test(dateString)) {
+    return `${dateString}-01`;
+  }
+
+  // If it's already a full date, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    return dateString;
+  }
+
+  // If it doesn't match any expected format, return null
+  console.warn(`Unexpected date format: ${dateString}`);
+  return null;
+}
+
 export async function initializeOrUpdateSpotifyData(
   userId: string,
   token: string
@@ -147,7 +170,7 @@ async function storeSpotifyDataInSupabase(
           name: track.name,
           album: track.album.name,
           artists: track.artists.map((artist: any) => artist.name),
-          release_date: track.album.release_date,
+          release_date: parseReleaseDate(track.album.release_date),
           popularity: track.popularity,
           image_url: track.album.images[0]?.url,
           rank: index + 1, // Add ranking based on the order
